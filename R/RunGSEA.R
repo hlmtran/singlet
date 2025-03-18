@@ -77,6 +77,7 @@ RunGSEA <- function(object, ID = "gene_symbol", reduction = "nmf", species = "Ho
     if(remove.zeros.per.factor){
       ranks = ranks[ranks != 0]
 
+
     }
     
     
