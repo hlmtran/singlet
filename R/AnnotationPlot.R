@@ -165,7 +165,7 @@ AnnotationPlot.list <- function(object, plot.field, dropEmpty=TRUE,...) {
 #' @import     ggplot2
 #'
 #' @export
-AnnotationPlot.data.frame <- function(object, plot.field, dropEmpty=TRUE, ...){
+AnnotationPlot.data.frame <- function(object, plot.field, dropEmpty=TRUE, annotation.name = "annotations", ...){
 
   pcols <- c("factor","group","p")
   fcols <- c("factor","group","fc")
