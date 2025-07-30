@@ -53,7 +53,7 @@ AnnotationPlot.Seurat <- function(object, plot.field = NULL, reduction = "nmf", 
 #' 
 AnnotationPlot.DimReduc <- function(object, plot.field=NULL, dropEmpty=TRUE, annotation.name = "annotations", ...) {
   
-  if(!("annotations" %in% names(object@misc))){
+  if(!(annotation.name %in% names(object@misc))){
     stop("the ", reduction, " reduction of this object has no 'annotations' slot. Run 'AnnotateNMF' first.")
   }
   
@@ -238,20 +238,45 @@ AnnotationPlot.data.frame <- function(object, plot.field, dropEmpty=TRUE, ...){
   df <- df[, c("design", "field", "factor", "lods", "negative_log10_fdr","coefficients")]
   df <- df[rev(order(df$negative_log10_fdr)), ]
   
+  #caution: multiplying by the sign of coefficients will only work if coefficients have no 0
+  #this may look more confusing if the FDR contain non significant results, which may already be implicitly filtered.
   # construct plot
   p <- ggplot(df, 
               aes(x = factor, 
                   y = field, 
-                  color = negative_log10_fdr, 
-                  fill = negative_log10_fdr,
+                  color = negative_log10_fdr*sign(coefficients), 
+                  fill = negative_log10_fdr*sign(coefficients),
                   size = lods,
-                  shape = ifelse(coefficients > 0, "Positive", "Negative")
+                  shape = factor(ifelse(coefficients > 0, "Positive", "Negative"),
+                                 levels = c("Positive", "Negative"))
               )
   ) + 
     geom_point() + 
     scale_shape_manual(values = c("Positive" = 24, "Negative" = 25)) +
-    scale_color_viridis_c(direction = -1, option = "B", end = 0.9) +
-    scale_fill_viridis_c(direction = -1, option = "B", end = 0.9,guide = "none") +
+    scale_colour_gradientn(
+      colours = c("blue", "white", "red"),
+      values = scales::rescale(c(-100, -50 , log10(0.05) , 0, -log10(0.05) , 50 , 100)),
+      limits = c(-100, 100),
+      space = "Lab",
+      na.value = "grey50",
+      guide = "colourbar"
+    )+
+    scale_fill_gradientn(
+      colours = c("blue", "white", "red"),
+      values = scales::rescale(c(-100, -50 , log10(0.05), 0, -log10(0.05), 50 ,100)),
+      limits = c(-100, 100),
+      space = "Lab",
+      na.value = "grey50",
+      guide = "none"
+    )+
+    # scale_color_gradient2(
+    #   low = "blue", mid = "white", high = "red", midpoint = 0
+    # )+
+    # scale_fill_gradient2(
+    #   low = "blue", mid = "white", high = "red", midpoint = 0
+    # ,guide = "none")+
+    # scale_color_viridis_c(direction = -1, option = "B", end = 0.9) +
+    # scale_fill_viridis_c(direction = -1, option = "B", end = 0.9,guide = "none") +
     theme_minimal() + 
     labs(y = plot.field, 
          x = "NMF factor",

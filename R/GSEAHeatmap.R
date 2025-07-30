@@ -13,7 +13,7 @@
 #' @export
 #'
 GSEAHeatmap <- function(object, reduction = "nmf", max.terms.per.factor = 3, dropcommon = TRUE,gsea.name = "gsea") {
-
+#TODO: need to check if gsea.name is in object
   if (is(object, "Seurat")) {
     df <- object@reductions[[reduction]]@misc[[gsea.name]][["padj"]]
   } else if (is(object, "nmf")) {
