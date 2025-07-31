@@ -21,7 +21,7 @@ AnnotationPlot <- function(object, ...) {
 #' @export
 #' 
 AnnotationPlot.Seurat <- function(object, plot.field = NULL, reduction = "nmf", dropEmpty=TRUE, annotation.name = "annotations", ...){
-  AnnotationPlot(object@reductions[[reduction]], dropEmpty=dropEmpty, annotation.name = annotation.name)
+  AnnotationPlot(object@reductions[[reduction]],plot.field = plot.field, dropEmpty=dropEmpty, annotation.name = annotation.name)
 }
 
 
