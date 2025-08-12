@@ -279,9 +279,9 @@ AnnotationPlot.data.frame <- function(object, plot.field, dropEmpty=TRUE, ...){
     # scale_fill_viridis_c(direction = -1, option = "B", end = 0.9,guide = "none") +
     theme_minimal() + 
     labs(y = plot.field, 
-         x = "NMF factor",
+         x = "Factor",
          shape = "Direction",
-         color = "FDR\n(-log10)", 
+         color = " sign(coeffs) x\n-log10(FDR)", 
          size = "Association\n(log-odds)"
     ) + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) +
