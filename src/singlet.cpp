@@ -564,7 +564,7 @@ inline double mse_test(Rcpp::SparseMatrix A, const Eigen::MatrixXd& w, Eigen::Ve
         }
         losses(j) = (n > 0) ? s / n : 0;
     }
-    return losses.sum() / h.cols();
+    return losses.sum() / (A.rows() * A.cols() * (1 / inv_density));
 }
 
 // calculate mean squared error of the model at test set indices only
@@ -603,7 +603,7 @@ inline double mse_test(std::vector<Rcpp::SparseMatrix> A, const Eigen::MatrixXd&
         }
         offset += A[chunk].cols();
     }
-    return losses.sum() / h.cols();
+    return losses.sum() / (A.rows() * A.cols() * (1 / inv_density));
 }
 
 // calculate mean squared error of the model at test set indices only
@@ -630,7 +630,7 @@ inline double mse_test(const Eigen::MatrixXd& A, const Eigen::MatrixXd& w, Eigen
         }
         losses(j) = (n > 0) ? s / n : 0;
     }
-    return losses.sum() / h.cols();
+    return losses.sum() / (A.rows() * A.cols() * (1 / inv_density));
 }
 
 // NMF FUNCTIONS ---------------------------------------------------------------------------------------
