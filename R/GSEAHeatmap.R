@@ -21,7 +21,7 @@ GSEAHeatmap <- function(object, reduction = "nmf", max.terms.per.factor = 3, dro
   }
   
   # markers for each factor based on the proportion of signal in that factor
-  df2 <- as.matrix(Diagonal(x = 1 / rowSums(df)) %*% df)
+  df2 <- as.matrix(Diagonal(x = 1 / rowSums(df,na.rm = TRUE)) %*% df)
 
   # see https://github.com/zdebruine/singlet/issues/26
   # thanks to @earbebarnes
