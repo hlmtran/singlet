@@ -20,6 +20,8 @@ GSEAHeatmap <- function(object, reduction = "nmf", max.terms.per.factor = 3, dro
     df <- object@misc[[gsea.name]][["padj"]]
   }
   
+  
+  df = df[(rowSums(df,na.rm=T) > 0 ),]
   # markers for each factor based on the proportion of signal in that factor
   df2 <- as.matrix(Diagonal(x = 1 / rowSums(df,na.rm = TRUE)) %*% df)
 
@@ -34,6 +36,7 @@ GSEAHeatmap <- function(object, reduction = "nmf", max.terms.per.factor = 3, dro
     terms_i <- terms_i[idx]
     terms_j <- df2[idx, i]
     v <- sort(terms_j, decreasing = TRUE)
+    v <- v[!is.na(v)] #making this explicit
     if (length(v) > max.terms.per.factor) {
       terms <- c(terms, names(v)[1:max.terms.per.factor])
     } else {
@@ -42,7 +45,9 @@ GSEAHeatmap <- function(object, reduction = "nmf", max.terms.per.factor = 3, dro
   }
   terms <- unique(terms)
   df <- df[terms, ]
-
+  #could be earlier, but this lets us exclude NAs where 0 could be < max.terms 
+  df[is.na(df)] = 0
+  
   rownames(df) <- sapply(rownames(df), function(x) {
     ifelse(nchar(x) > 48, paste0(substr(x, 1, 45), "..."), x)
   })
