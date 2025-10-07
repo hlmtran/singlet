@@ -20,8 +20,8 @@ AnnotationPlot <- function(object, ...) {
 #'
 #' @export
 #' 
-AnnotationPlot.Seurat <- function(object, plot.field = NULL, reduction = "nmf", dropEmpty=TRUE, annotation.name = "annotations", ...){
-  AnnotationPlot(object@reductions[[reduction]],plot.field = plot.field, dropEmpty=dropEmpty, annotation.name = annotation.name)
+AnnotationPlot.Seurat <- function(object, plot.field = NULL, reduction = "nmf", dropEmpty=TRUE, annotation.name = "annotations", cluster_by="pos", ...){
+  AnnotationPlot(object@reductions[[reduction]],plot.field = plot.field, dropEmpty=dropEmpty, annotation.name = annotation.name, cluster_by = cluster_by)
 }
 
 
@@ -51,7 +51,7 @@ AnnotationPlot.Seurat <- function(object, plot.field = NULL, reduction = "nmf", 
 #'
 #' @export
 #' 
-AnnotationPlot.DimReduc <- function(object, plot.field=NULL, dropEmpty=TRUE, annotation.name = "annotations", ...) {
+AnnotationPlot.DimReduc <- function(object, plot.field=NULL, dropEmpty=TRUE, annotation.name = "annotations", cluster_by="pos", ...) {
   
   if(!(annotation.name %in% names(object@misc))){
     stop("the ", reduction, " reduction of this object has no 'annotations' slot. Run 'AnnotateNMF' first.")
@@ -72,7 +72,8 @@ AnnotationPlot.DimReduc <- function(object, plot.field=NULL, dropEmpty=TRUE, ann
   # plot per factor by group
   AnnotationPlot.data.frame(annot[[plot.field]], 
                             plot.field=plot.field,
-                            dropEmpty=dropEmpty)
+                            dropEmpty=dropEmpty,
+                            cluster_by = cluster_by)
   
 }
 
@@ -100,7 +101,7 @@ AnnotationPlot.DimReduc <- function(object, plot.field=NULL, dropEmpty=TRUE, ann
 #'
 #' @export
 #' 
-AnnotationPlot.nmf <- function(object, plot.field=NULL, dropEmpty=TRUE, annotation.name = "annotations",...) {
+AnnotationPlot.nmf <- function(object, plot.field=NULL, dropEmpty=TRUE, annotation.name = "annotations", cluster_by="pos",...) {
   
   # nmf objects can have a @misc slot too, so...
   if(!("annotations" %in% names(object@misc))){
@@ -108,7 +109,7 @@ AnnotationPlot.nmf <- function(object, plot.field=NULL, dropEmpty=TRUE, annotati
   }
   
   annot <- object@misc[[annotation.name]]
-  AnnotationPlot(annot, plot.field=plot.field, dropEmpty=dropEmpty)
+  AnnotationPlot(annot, plot.field=plot.field, dropEmpty=dropEmpty,cluster_by = cluster_by)
   
 }
 
@@ -126,12 +127,13 @@ AnnotationPlot.nmf <- function(object, plot.field=NULL, dropEmpty=TRUE, annotati
 #' @name AnnotationPlot
 #'
 #' @export
-AnnotationPlot.list <- function(object, plot.field, dropEmpty=TRUE,...) {
+AnnotationPlot.list <- function(object, plot.field, dropEmpty=TRUE, cluster_by="pos",...) {
   
   stopifnot(plot.field %in% names(object))
   AnnotationPlot.data.frame(object[[plot.field]], 
                             plot.field=plot.field, 
-                            dropEmpty=dropEmpty, 
+                            dropEmpty=dropEmpty,
+                            cluster_by = cluster_by,
                             ...)
   
 }
@@ -165,7 +167,7 @@ AnnotationPlot.list <- function(object, plot.field, dropEmpty=TRUE,...) {
 #' @import     ggplot2
 #'
 #' @export
-AnnotationPlot.data.frame <- function(object, plot.field, dropEmpty=TRUE, ...){
+AnnotationPlot.data.frame <- function(object, plot.field, dropEmpty=TRUE, cluster_by="pos",...){
   
   pcols <- c("factor","group","p")
   fcols <- c("factor","group","fc")
@@ -192,10 +194,13 @@ AnnotationPlot.data.frame <- function(object, plot.field, dropEmpty=TRUE, ...){
   fc[fdr_weight == 0] <- 0 # fdr > 0.317
   
   # cluster on "fold change" (LODS)
-  ridx <- rev(hclust(dist(fc, method = "binary"), method = "ward.D2")$order)
-  fields <- rownames(fc)[ridx]
-  cidx <- rev(hclust(dist(t(fc), method = "binary"), method = "ward.D2")$order)
-  factors <- colnames(fc)[cidx]
+  # ridx <- rev(hclust(dist(fc, method = "binary"), method = "ward.D2")$order)
+  # fields <- rownames(fc)[ridx]
+  # cidx <- rev(hclust(dist(t(fc), method = "binary"), method = "ward.D2")$order)
+  # factors <- colnames(fc)[cidx]
+  fields = rownames(fc)[getClusterIdx(fc,coeff,cluster_by)]
+  factors = colnames(fc)[getClusterIdx(t(fc),t(coeff),cluster_by)]
+  
   pvals <- pvals[fields, factors]
   fc <- fc[fields, factors]
   fc[fc == 0] <- NA 
@@ -299,3 +304,17 @@ AnnotationPlot.data.frame <- function(object, plot.field, dropEmpty=TRUE, ...){
 #'
 #' @export
 .S3method("AnnotationPlot", "data.frame", AnnotationPlot.data.frame)
+
+getClusterIdx = function(fc,coeff,cluster_by="pos"){
+  stopifnot(cluster_by %in% c("std","pos","neg"))
+  
+  if(cluster_by == "pos"){
+    fc[sign(coeff)==-1] = 0
+  }else if (cluster_by=="neg"){
+    fc[sign(coeff)==1] = 0
+  }
+  
+  idx = rev(hclust(dist(fc, method = "binary"), method = "ward.D2")$order)
+  
+  return(idx)
+}
