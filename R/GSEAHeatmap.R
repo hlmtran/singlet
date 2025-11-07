@@ -66,7 +66,7 @@ GSEAHeatmap <- function(object, reduction = "nmf", max.terms.per.factor = 3, dro
     scale_y_discrete(expand = c(0, 0)) +
     labs(
       x = "NMF factor",
-      y = "GO Term",
+      y = "Gene Set",
       fill = "FDR\n(-log10)"
     ) +
     theme(
