@@ -3,6 +3,7 @@
 \name{AnnotationPlot}
 \alias{AnnotationPlot}
 \alias{AnnotationPlot.Seurat}
+\alias{AnnotationPlot.SingleCellExperiment}
 \alias{AnnotationPlot.DimReduc}
 \alias{AnnotationPlot.nmf}
 \alias{AnnotationPlot.list}
@@ -17,7 +18,17 @@ AnnotationPlot(object, ...)
   reduction = "nmf",
   dropEmpty = TRUE,
   annotation.name = "annotations",
-  cluster_by = "std",
+  cluster_by = "pos",
+  ...
+)
+
+\method{AnnotationPlot}{SingleCellExperiment}(
+  object,
+  plot.field = NULL,
+  reduction = "nmf",
+  dropEmpty = TRUE,
+  annotation.name = "annotations",
+  cluster_by = "pos",
   ...
 )
 
@@ -26,7 +37,7 @@ AnnotationPlot(object, ...)
   plot.field = NULL,
   dropEmpty = TRUE,
   annotation.name = "annotations",
-  cluster_by = "std",
+  cluster_by = "pos",
   ...
 )
 
@@ -35,13 +46,13 @@ AnnotationPlot(object, ...)
   plot.field = NULL,
   dropEmpty = TRUE,
   annotation.name = "annotations",
-  cluster_by = "std",
+  cluster_by = "pos",
   ...
 )
 
-\method{AnnotationPlot}{list}(object, plot.field, dropEmpty = TRUE, cluster_by = "std", ...)
+\method{AnnotationPlot}{list}(object, plot.field, dropEmpty = TRUE, cluster_by = "pos", ...)
 
-\method{AnnotationPlot}{data.frame}(object, plot.field, dropEmpty = TRUE, cluster_by = "std", ...)
+\method{AnnotationPlot}{data.frame}(object, plot.field, dropEmpty = TRUE, cluster_by = "pos", ...)
 }
 \arguments{
 \item{object}{a compatible object (Seurat, DimReduc, nmf, data.frame)}

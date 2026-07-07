@@ -317,8 +317,8 @@ RunNMF.SingleCellExperiment <- function(object,
   rownames(nmf_model$w) <- rownames(object)
   colnames(nmf_model$h) <- colnames(object)
   requireNamespace("SummarizedExperiment")
-  metadata(object)[["nmf_model"]] <- nmf_model
-  metadata(object)[["cv_data"]] <- nmf_model$cv_data
+  metadata(object)[[reduction.name]] <- nmf_model
+  metadata(object)[[paste0(reduction.name,"_cv_data")]] <- nmf_model$cv_data
   SingleCellExperiment::reducedDim(object, reduction.name) <- t(nmf_model$h)
   object
 }

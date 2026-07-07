@@ -24,26 +24,195 @@
 #'
 #' @export
 #'
-RunGSEA <- function(object, ID = "gene_symbol", reduction = "nmf", species = "Homo sapiens", category = "C5",
-                    min.size = 10, max.size = 500, dims = NULL,
-                    verbose = TRUE, padj.sig = 0.01, add.noise = FALSE, scoreType = "pos", gsea.name = "gsea",remove.zeros.per.factor = FALSE,...) {
+RunGSEA <- function(object,...){
+  UseMethod("RunGSEA")
+}
 
+#' Annotate NMF model with cell or sample metadata
+#'
+#' @rdname RunGSEA
+#' @aliases RunGSEA
+#'
+#' @import limma
+#'
+#' @export
+#'
+RunGSEA.Seurat = function(object, ID = "gene_symbol", reduction = "nmf", species = "Homo sapiens", category = "C5",
+                          min.size = 10, max.size = 500, dims = NULL,
+                          verbose = TRUE, padj.sig = 0.01, add.noise = FALSE, scoreType = "pos", gsea.name = "gsea",remove.zeros.per.factor = FALSE,...){
+  
+  w <- object@reductions[[reduction]]@feature.loadings
+  
+  object@reductions[[reduction]]@misc[[gsea.name]] = RunGSEA.matrix(w = w,
+                                                                    ID = ID,
+                                                                    reduction = reduction,
+                                                                    species = species,
+                                                                    category = category,
+                                                                    min.size = min.size,
+                                                                    max.size = max.size,
+                                                                    dims = dims,
+                                                                    verbose = verbose,
+                                                                    padj.sig = padj.sig,
+                                                                    add.noise = add.noise,
+                                                                    scoreType = scoreType,
+                                                                    remove.zeros.per.factor = remove.zeros.per.factor,
+                                                                    ...)
+  
+  return(object)
+}
+
+#' @rdname RunGSEA
+#' @name RunGSEA
+#'
+#' @export
+#'
+.S3method("RunGSEA", "Seurat", RunGSEA.Seurat)
+
+
+#' Annotate NMF model with cell or sample metadata
+#'
+#' @rdname RunGSEA
+#' @aliases RunGSEA
+#'
+#' @import limma
+#'
+#' @export
+#'
+RunGSEA.SingleCellExperiment = function(object, ID = "gene_symbol", reduction = "nmf", species = "Homo sapiens", category = "C5",
+                                        min.size = 10, max.size = 500, dims = NULL,
+                                        verbose = TRUE, padj.sig = 0.01, add.noise = FALSE, scoreType = "pos", gsea.name = "gsea",remove.zeros.per.factor = FALSE,...){
+  object@metadata[[reduction]] = RunGSEA(object@metadata[[reduction]],
+                                         ID = ID,
+                                         reduction = reduction,
+                                         species = species,
+                                         category = category,
+                                         min.size = min.size,
+                                         max.size = max.size,
+                                         dims = dims,
+                                         verbose = verbose,
+                                         padj.sig = padj.sig,
+                                         add.noise = add.noise,
+                                         scoreType = scoreType,
+                                         remove.zeros.per.factor = remove.zeros.per.factor,
+                                         ...)
+  
+  return(object)
+}
+
+#' @rdname RunGSEA
+#' @name RunGSEA
+#'
+#' @export
+#'
+.S3method("RunGSEA", "SingleCellExperiment", RunGSEA.SingleCellExperiment)
+
+#' Annotate NMF model with cell or sample metadata
+#'
+#' @rdname RunGSEA
+#' @aliases RunGSEA
+#'
+#' @import limma
+#'
+#' @export
+#'
+RunGSEA.list = function(object, ID = "gene_symbol", reduction = "nmf", species = "Homo sapiens", category = "C5",
+                        min.size = 10, max.size = 500, dims = NULL,
+                        verbose = TRUE, padj.sig = 0.01, add.noise = FALSE, scoreType = "pos", gsea.name = "gsea",remove.zeros.per.factor = FALSE,...){
+  w = object$w
+  
+  object[[gsea.name]] = RunGSEA.matrix(w = w,
+                                       ID = ID,
+                                       reduction = reduction,
+                                       species = species,
+                                       category = category,
+                                       min.size = min.size,
+                                       max.size = max.size,
+                                       dims = dims,
+                                       verbose = verbose,
+                                       padj.sig = padj.sig,
+                                       add.noise = add.noise,
+                                       scoreType = scoreType,
+                                       remove.zeros.per.factor = remove.zeros.per.factor,
+                                       ...)
+  return(object)
+}
+
+#' @rdname RunGSEA
+#' @name RunGSEA
+#'
+#' @export
+#'
+.S3method("RunGSEA", "list", RunGSEA.list)
+
+#' Annotate NMF model with cell or sample metadata
+#'
+#' @rdname RunGSEA
+#' @aliases RunGSEA
+#'
+#' @import limma
+#'
+#' @export
+#'
+RunGSEA.nmf = function(object, ID = "gene_symbol", reduction = "nmf", species = "Homo sapiens", category = "C5",
+                       min.size = 10, max.size = 500, dims = NULL,
+                       verbose = TRUE, padj.sig = 0.01, add.noise = FALSE, scoreType = "pos", gsea.name = "gsea",remove.zeros.per.factor = FALSE,...){
+  w <- object@w
+  
+  object@misc[[gsea.name]] = RunGSEA.matrix(w = w,
+                                            ID = ID,
+                                            reduction = reduction,
+                                            species = species,
+                                            category = category,
+                                            min.size = min.size,
+                                            max.size = max.size,
+                                            dims = dims,
+                                            verbose = verbose,
+                                            padj.sig = padj.sig,
+                                            add.noise = add.noise,
+                                            scoreType = scoreType,
+                                            remove.zeros.per.factor = remove.zeros.per.factor,
+                                            ...)
+  return(object)
+}
+
+#' @rdname RunGSEA
+#' @name RunGSEA
+#'
+#' @export
+#'
+.S3method("RunGSEA", "nmf", RunGSEA.nmf)
+
+
+
+#' Annotate NMF model with cell or sample metadata
+#'
+#' @rdname RunGSEA
+#' @aliases RunGSEA
+#'
+#' @import limma
+#'
+#' @export
+#'
+RunGSEA.matrix <- function(w, ID = "gene_symbol", reduction = "nmf", species = "Homo sapiens", category = "C5",
+                           min.size = 10, max.size = 500, dims = NULL,
+                           verbose = TRUE, padj.sig = 0.01, add.noise = FALSE, scoreType = "pos",remove.zeros.per.factor = FALSE,...) {
+  
   if (verbose) cat("fetching gene sets\n")
   gene_sets <- msigdbr(species = species, category = category, ...)
-
+  
   if (verbose) cat("filtering pathways\n")
   pathways <- split(x = gene_sets[[ID]], f = gene_sets$gs_name)
   pathways <- pathways[lapply(pathways, length) > min.size]
-
+  
   if (verbose) cat("filtering genes in pathways to those in reduction\n")
   genes_in_pathways <- unique(unlist(pathways))
-
-  # work on RcppML nmf objects too: 
-  if (is(object, "Seurat")) {
-    w <- object@reductions[[reduction]]@feature.loadings
-  } else if (is(object, "nmf")) { 
-    w <- object@w
-  }
+  
+  # # work on RcppML nmf objects too: 
+  # if (is(object, "Seurat")) {
+  #   w <- object@reductions[[reduction]]@feature.loadings
+  # } else if (is(object, "nmf")) { 
+  #   w <- object@w
+  # }
   if (!is.null(dims)) w <- w[, dims]
   
   
@@ -55,9 +224,10 @@ RunGSEA <- function(object, ID = "gene_symbol", reduction = "nmf", species = "Ho
   pathways <- lapply(pathways, function(x) x[x %in% rownames(w)])
   v <- lapply(pathways, length)
   pathways <- pathways[which(v > min.size & v < max.size)]
-
+  
   #remove genes that are 0 across all factors
-  row_sum = rowSums(w)
+  #abs make it work for more than just nmf factors
+  row_sum = rowSums(abs(w))
   if (any(row_sum == 0)){
     cat("Rows with all 0 detected. Removing...\n")
     w = w[row_sum !=0,]
@@ -75,7 +245,7 @@ RunGSEA <- function(object, ID = "gene_symbol", reduction = "nmf", species = "Ho
     #I need to check if this is unbiased filtering.
     if(remove.zeros.per.factor){
       ranks = ranks[ranks != 0]
-
+      
     }
     
     
@@ -103,9 +273,9 @@ RunGSEA <- function(object, ID = "gene_symbol", reduction = "nmf", species = "Ho
   es <- do.call(cbind, lapply(results, function(x) x$ES))
   nes <- do.call(cbind, lapply(results, function(x) x$NES))
   rownames(pval) <- rownames(padj) <- rownames(es) <- rownames(nes) <- results[[1]]$pathway
-
+  
   idx <- which(apply(padj, 1, function(x) min(x) < padj.sig))
-
+  
   # if (!is.null(dims)) {
   #   dims <- paste0(reduction, dims)
   # } else if (is(object, "Seurat")) {
@@ -114,7 +284,7 @@ RunGSEA <- function(object, ID = "gene_symbol", reduction = "nmf", species = "Ho
   #   dims <- paste0("nmf", 1:ncol(w))
   # }
   colnames(pval) <- colnames(padj) <- colnames(es) <- colnames(nes) <- colnames(w)
-
+  
   # reorder with hclust
   padj <- -log10(padj)
   pval <- -log10(pval)
@@ -125,17 +295,26 @@ RunGSEA <- function(object, ID = "gene_symbol", reduction = "nmf", species = "Ho
   padj <- padj[row_order, col_order]
   es <- es[row_order, col_order]
   nes <- nes[row_order, col_order]
-
-  if (is(object, "Seurat")) {
-    object@reductions[[reduction]]@misc[[gsea.name]] <- 
-      list("pval" = pval, "padj" = padj, "es" = es, "nes" = nes)
-  } else if (is(object, "nmf")) { 
-    object@misc[[gsea.name]] <- 
-      list("pval" = pval, "padj" = padj, "es" = es, "nes" = nes)
-  }
-
-  object
+  
+  # if (is(object, "Seurat")) {
+  #   object@reductions[[reduction]]@misc[[gsea.name]] <- 
+  #     list("pval" = pval, "padj" = padj, "es" = es, "nes" = nes)
+  # } else if (is(object, "nmf")) { 
+  #   object@misc[[gsea.name]] <- 
+  #     list("pval" = pval, "padj" = padj, "es" = es, "nes" = nes)
+  # }
+  # 
+  # object
+  gsea_results = list("pval" = pval, "padj" = padj, "es" = es, "nes" = nes)
+  
+  return(gsea_results)
 }
+#' @rdname RunGSEA
+#' @name RunGSEA
+#'
+#' @export
+#'
+.S3method("RunGSEA", "matrix", RunGSEA.matrix)
 
 uniquePathways = function(resultList){
   vec = character()

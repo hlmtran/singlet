@@ -24,9 +24,11 @@ getModelFit <- function(design, object, center=TRUE, ...) {
 
   dat <- object
   if (is(object, "nmf")) dat <- object@h # RcppML nmf 
+  if (is(object, "list")) dat <- object$h # singlet nmf
   if (is(object, "Seurat")) dat <- object@assays$RNA$data
   if (is(object, "DimReduc")) dat <- t(object@cell.embeddings)
   if (is(object, "SingleCellExperiment")) dat <- logcounts(object)
+  
   # SingleCellExperiment::reducedDim(object, dimname) just returns a data.matrix
   if (ncol(dat) < nrow(design)) dat <- t(dat) # transpose reduced dims if needed
 
