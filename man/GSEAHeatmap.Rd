@@ -2,14 +2,49 @@
 % Please edit documentation in R/GSEAHeatmap.R
 \name{GSEAHeatmap}
 \alias{GSEAHeatmap}
+\alias{GSEAHeatmap.Seurat}
+\alias{GSEAHeatmap.SingleCellExperiment}
+\alias{GSEAHeatmap.nmf}
+\alias{GSEAHeatmap.matrix}
 \title{Plot GSEA results on a heatmap}
 \usage{
-GSEAHeatmap(
+GSEAHeatmap(object, ...)
+
+\method{GSEAHeatmap}{Seurat}(
   object,
   reduction = "nmf",
   max.terms.per.factor = 3,
   dropcommon = TRUE,
-  gsea.name = "gsea"
+  gsea.name = "gsea",
+  truncate.terms = 48,
+  ...
+)
+
+\method{GSEAHeatmap}{SingleCellExperiment}(
+  object,
+  reduction = "nmf",
+  max.terms.per.factor = 3,
+  dropcommon = TRUE,
+  gsea.name = "gsea",
+  truncate.terms = 48,
+  ...
+)
+
+\method{GSEAHeatmap}{nmf}(
+  object,
+  max.terms.per.factor = 3,
+  dropcommon = TRUE,
+  gsea.name = "gsea",
+  truncate.terms = 48,
+  ...
+)
+
+\method{GSEAHeatmap}{matrix}(
+  object,
+  max.terms.per.factor = 3,
+  dropcommon = TRUE,
+  truncate.terms = 48,
+  ...
 )
 }
 \arguments{
@@ -22,6 +57,8 @@ GSEAHeatmap(
 \item{dropcommon}{drop broadly enriched terms across factors? (TRUE)}
 
 \item{gsea.name}{gsea name, gsea by default}
+
+\item{truncate.terms}{max number of characters to keep in a gene set term. NULL to keep all.}
 }
 \value{
 ggplot2 object

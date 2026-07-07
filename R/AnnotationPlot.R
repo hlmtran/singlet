@@ -32,6 +32,24 @@ AnnotationPlot.Seurat <- function(object, plot.field = NULL, reduction = "nmf", 
 .S3method("AnnotationPlot", "Seurat", AnnotationPlot.Seurat)
 
 
+#' @rdname AnnotationPlot
+#' @name AnnotationPlot
+#'
+#' @export
+#' 
+AnnotationPlot.SingleCellExperiment <- function(object, plot.field = NULL, reduction = "nmf", dropEmpty=TRUE, annotation.name = "annotations", cluster_by="pos", ...){
+  if(is.null(plot.field)) plot.field = names(object@metadata[[reduction]][[annotation.name]])[[1]]
+  AnnotationPlot(object@metadata[[reduction]][[annotation.name]],plot.field = plot.field, dropEmpty=dropEmpty, cluster_by = cluster_by)
+}
+
+
+#' @rdname AnnotationPlot
+#' @name   AnnotationPlot
+#'
+#' @export
+.S3method("AnnotationPlot", "SingleCellExperiment", AnnotationPlot.SingleCellExperiment)
+
+
 #' Plot metadata enrichment in NMF factors
 #' 
 #' After running \code{AnnotateNMF}, this function returns 
