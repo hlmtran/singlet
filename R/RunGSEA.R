@@ -235,6 +235,7 @@ RunGSEA.matrix <- function(w, ID = "gene_symbol", species = "Homo sapiens", cate
   cat("running GSEA on", ncol(w), "factors...\n")
   pb <- utils::txtProgressBar(min = 0, max = ncol(w), style = 3)
   results <- list()
+  ranksList = list()
   for (i in 1:ncol(w)) {
     #this is also redundant as fgsea also sorts automatically in preparePathwaysAndStats()
     #https://github.com/alserglab/fgsea/blob/d6f1670c60bbc48ad1a95f98dc52921ec98d2542/R/fgsea.R#L41
@@ -258,54 +259,48 @@ RunGSEA.matrix <- function(w, ID = "gene_symbol", species = "Homo sapiens", cate
       pathways, ranks,
       minSize = min.size, maxSize = max.size, scoreType = scoreType
     ))
-    
+    ranksList[[i]] = ranks
     
     utils::setTxtProgressBar(pb, i)
   }
   close(pb)
   
-  results = padData(results)
+  factor_names = colnames(w)
+  if (is.null(factor_names)) {
+    factor_names = paste0("factor", seq_len(ncol(w)))
+  }
+  names(results) = factor_names
+  names(ranksList) = factor_names
   
-  pval <- do.call(cbind, lapply(results, function(x) x$pval))
-  padj <- do.call(cbind, lapply(results, function(x) x$padj))
-  es <- do.call(cbind, lapply(results, function(x) x$ES))
-  nes <- do.call(cbind, lapply(results, function(x) x$NES))
-  rownames(pval) <- rownames(padj) <- rownames(es) <- rownames(nes) <- results[[1]]$pathway
   
-  idx <- which(apply(padj, 1, function(x) min(x) < padj.sig))
-  
-  # if (!is.null(dims)) {
-  #   dims <- paste0(reduction, dims)
-  # } else if (is(object, "Seurat")) {
-  #   dims <- paste0(reduction, 1:ncol(object@reductions[[reduction]]))
-  # } else if (is(object, "nmf")) {
-  #   dims <- paste0("nmf", 1:ncol(w))
-  # }
-  colnames(pval) <- colnames(padj) <- colnames(es) <- colnames(nes) <- colnames(w)
-  
-  # reorder with hclust
-  padj <- -log10(padj)
-  pval <- -log10(pval)
-  
-  row_order <- hclust(dist(na.omit(padj)), method = "ward.D2")$order
-  col_order <- hclust(dist(t(na.omit(padj))), method = "ward.D2")$order
-  pval <- pval[row_order, col_order]
-  padj <- padj[row_order, col_order]
-  es <- es[row_order, col_order]
-  nes <- nes[row_order, col_order]
-  
-  # if (is(object, "Seurat")) {
-  #   object@reductions[[reduction]]@misc[[gsea.name]] <- 
-  #     list("pval" = pval, "padj" = padj, "es" = es, "nes" = nes)
-  # } else if (is(object, "nmf")) { 
-  #   object@misc[[gsea.name]] <- 
-  #     list("pval" = pval, "padj" = padj, "es" = es, "nes" = nes)
-  # }
+  # results = padData(results)
   # 
-  # object
-  gsea_results = list("pval" = pval, "padj" = padj, "es" = es, "nes" = nes)
+  # pval <- do.call(cbind, lapply(results, function(x) x$pval))
+  # padj <- do.call(cbind, lapply(results, function(x) x$padj))
+  # es <- do.call(cbind, lapply(results, function(x) x$ES))
+  # nes <- do.call(cbind, lapply(results, function(x) x$NES))
+  # rownames(pval) <- rownames(padj) <- rownames(es) <- rownames(nes) <- results[[1]]$pathway
+  # 
+  # idx <- which(apply(padj, 1, function(x) min(x) < padj.sig))
+  # 
+  # 
+  # colnames(pval) <- colnames(padj) <- colnames(es) <- colnames(nes) <- colnames(w)
+  # 
+  # # reorder with hclust
+  # padj <- -log10(padj)
+  # pval <- -log10(pval)
+  # 
+  # row_order <- hclust(dist(na.omit(padj)), method = "ward.D2")$order
+  # col_order <- hclust(dist(t(na.omit(padj))), method = "ward.D2")$order
+  # pval <- pval[row_order, col_order]
+  # padj <- padj[row_order, col_order]
+  # es <- es[row_order, col_order]
+  # nes <- nes[row_order, col_order]
+  # 
+  # 
+  # gsea_results = list("pval" = pval, "padj" = padj, "es" = es, "nes" = nes)
   
-  return(gsea_results)
+  return(list(gsea = results,ranks = ranksList,pathways = pathways))
 }
 #' @rdname RunGSEA
 #' @name RunGSEA
@@ -314,31 +309,5 @@ RunGSEA.matrix <- function(w, ID = "gene_symbol", species = "Homo sapiens", cate
 #'
 .S3method("RunGSEA", "matrix", RunGSEA.matrix)
 
-uniquePathways = function(resultList){
-  vec = character()
-  for (i in 1:length(resultList) ){
-    vec = c(vec,resultList[[i]]$pathway)
-  }
-  
-  return(unique(vec))
-}
 
-fill_missing = function(df,pathways){
-  temp = data.frame(pathway = pathways)
-  joined = merge(temp, df, by = "pathway", all.x = TRUE)
-  
-  reordered_ind = match(pathways,joined$pathway)
-  joined = joined[reordered_ind,]
-  rownames(joined) = 1:nrow(joined)
-  
-  return(joined)
-}
 
-padData = function(resultList){
-  pathways = uniquePathways(resultList)
-  
-  padded_results = lapply(resultList,fill_missing,pathways = pathways)
-  
-  return(padded_results)
-  
-}

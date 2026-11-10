@@ -5,6 +5,7 @@
 \alias{GSEAHeatmap.Seurat}
 \alias{GSEAHeatmap.SingleCellExperiment}
 \alias{GSEAHeatmap.nmf}
+\alias{GSEAHeatmap.list}
 \alias{GSEAHeatmap.matrix}
 \title{Plot GSEA results on a heatmap}
 \usage{
@@ -13,6 +14,8 @@ GSEAHeatmap(object, ...)
 \method{GSEAHeatmap}{Seurat}(
   object,
   reduction = "nmf",
+  collapse = F,
+  padj.sig = 0.05,
   max.terms.per.factor = 3,
   dropcommon = TRUE,
   gsea.name = "gsea",
@@ -23,6 +26,8 @@ GSEAHeatmap(object, ...)
 \method{GSEAHeatmap}{SingleCellExperiment}(
   object,
   reduction = "nmf",
+  collapse = F,
+  padj.sig = 0.05,
   max.terms.per.factor = 3,
   dropcommon = TRUE,
   gsea.name = "gsea",
@@ -32,6 +37,8 @@ GSEAHeatmap(object, ...)
 
 \method{GSEAHeatmap}{nmf}(
   object,
+  collapse = F,
+  padj.sig = 0.05,
   max.terms.per.factor = 3,
   dropcommon = TRUE,
   gsea.name = "gsea",
@@ -39,8 +46,19 @@ GSEAHeatmap(object, ...)
   ...
 )
 
+\method{GSEAHeatmap}{list}(
+  object,
+  collapse = F,
+  padj.sig = 0.05,
+  max.terms.per.factor = 3,
+  dropcommon = TRUE,
+  truncate.terms = 48,
+  ...
+)
+
 \method{GSEAHeatmap}{matrix}(
   object,
+  padj.sig = 0.05,
   max.terms.per.factor = 3,
   dropcommon = TRUE,
   truncate.terms = 48,

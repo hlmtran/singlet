@@ -21,14 +21,20 @@ GSEAHeatmap <- function(object, ...) {
 #' @method GSEAHeatmap Seurat
 #' @export
 GSEAHeatmap.Seurat <- function(object, reduction = "nmf",
+                               collapse = F,
+                               padj.sig = 0.05,
                                max.terms.per.factor = 3,
                                dropcommon = TRUE,
                                gsea.name = "gsea",
                                truncate.terms = 48, ...) {
-  df <- object@reductions[[reduction]]@misc[[gsea.name]][["padj"]]
+  gsea <- object@reductions[[reduction]]@misc[[gsea.name]]
   
-  p <- GSEAHeatmap.matrix(
-    df,
+  
+  
+  p <- GSEAHeatmap(
+    object = gsea,
+    collapse = collapse,
+    padj.sig = padj.sig,
     max.terms.per.factor = max.terms.per.factor,
     dropcommon = dropcommon,
     truncate.terms = truncate.terms
@@ -42,14 +48,18 @@ GSEAHeatmap.Seurat <- function(object, reduction = "nmf",
 #' @method GSEAHeatmap SingleCellExperiment
 #' @export
 GSEAHeatmap.SingleCellExperiment <- function(object, reduction = "nmf",
+                                             collapse = F,
+                                             padj.sig = 0.05,
                                              max.terms.per.factor = 3,
                                              dropcommon = TRUE,
                                              gsea.name = "gsea",
                                              truncate.terms = 48, ...) {
-  df <- object@metadata[[reduction]][[gsea.name]][["padj"]]
+  gsea <- object@metadata[[reduction]][[gsea.name]]
   
-  p <- GSEAHeatmap.matrix(
-    df,
+  p <- GSEAHeatmap(
+    object = gsea,
+    collapse = collapse,
+    padj.sig = padj.sig,
     max.terms.per.factor = max.terms.per.factor,
     dropcommon = dropcommon,
     truncate.terms = truncate.terms
@@ -64,14 +74,18 @@ GSEAHeatmap.SingleCellExperiment <- function(object, reduction = "nmf",
 #' @method GSEAHeatmap nmf
 #' @export
 GSEAHeatmap.nmf <- function(object,
+                            collapse = F,
+                            padj.sig = 0.05,
                             max.terms.per.factor = 3,
                             dropcommon = TRUE,
                             gsea.name = "gsea",
                             truncate.terms = 48, ...) {
-  df <- object@misc[[gsea.name]][["padj"]]
+  gsea <- object@misc[[gsea.name]]
   
-  p <- GSEAHeatmap.matrix(
-    df,
+  p <- GSEAHeatmap(
+    object = gsea,
+    collapse = collapse,
+    padj.sig = padj.sig,
     max.terms.per.factor = max.terms.per.factor,
     dropcommon = dropcommon,
     truncate.terms = truncate.terms
@@ -82,21 +96,62 @@ GSEAHeatmap.nmf <- function(object,
 
 .S3method("GSEAHeatmap", "nmf", GSEAHeatmap.nmf)
 
+#' @rdname GSEAHeatmap
+#' @method GSEAHeatmap list
+#' @export
+GSEAHeatmap.list <- function(object,
+                             collapse = F,
+                             padj.sig = 0.05,
+                               max.terms.per.factor = 3,
+                               dropcommon = TRUE,
+                               truncate.terms = 48, ...) {
+  
+  if(collapse){
+    collapsed =  collapseGSEA(object, padj.sig = padj.sig)
+    main_pathways = getMainPathways(collapsed)
+    formatted =  formatGSEA(
+      object,
+      pathways = main_pathways
+    )
+  } else{
+    formatted = formatGSEA(object)
+  }
+  
+  p <- GSEAHeatmap.matrix(
+    object = formatted[["padj"]],
+    padj.sig = padj.sig,
+    max.terms.per.factor = max.terms.per.factor,
+    dropcommon = dropcommon,
+    truncate.terms = truncate.terms
+  )
+  
+  return(p)
+}
+
+.S3method("GSEAHeatmap", "list", GSEAHeatmap.list)
+
+
 
 #' @rdname GSEAHeatmap
 #' @method GSEAHeatmap matrix
 #' @export
 GSEAHeatmap.matrix <- function(object,
+                               padj.sig = 0.05,
                                max.terms.per.factor = 3,
                                dropcommon = TRUE,
                                truncate.terms = 48, ...) {
   df <- selectGSEATerms(
-    object,
+    df = object,
+    padj.sig=padj.sig,
     max.terms.per.factor = max.terms.per.factor,
     dropcommon = dropcommon,
     truncate.terms = truncate.terms
   )
-
+  
+  if (nrow(df) == 0) {
+    stop("No significant GSEA pathways remain after filtering")
+  }
+  
   df <- reshape2::melt(df)
   p <- plotGSEAHeatmap(df)
   
@@ -105,24 +160,6 @@ GSEAHeatmap.matrix <- function(object,
 
 .S3method("GSEAHeatmap", "matrix", GSEAHeatmap.matrix)
 
-
-
-# GSEAHeatmap <- function(object, reduction = "nmf", max.terms.per.factor = 3, dropcommon = TRUE,gsea.name = "gsea",truncate.terms=48) {
-# #TODO: need to check if gsea.name is in object
-#   if (is(object, "Seurat")) {
-#     df <- object@reductions[[reduction]]@misc[[gsea.name]][["padj"]]
-#   } else if (is(object, "nmf")) {
-#     df <- object@misc[[gsea.name]][["padj"]]
-#   }
-#   
-#   
-#   df = selectGSEATerms(df,max.terms.per.factor,dropcommon,truncate.terms)
-#   df <- reshape2::melt(df)
-#   p <- plotGSEAHeatmap(df)
-# 
-#   return(p) 
-# 
-# }
 
 plotGSEAHeatmap = function(df){
   p <- ggplot(df, aes(Var2, Var1, fill = value)) +
@@ -145,8 +182,8 @@ plotGSEAHeatmap = function(df){
   return(p) 
 }
 
-selectGSEATerms = function(df, max.terms.per.factor = 3,dropcommon = TRUE,truncate.terms=48){
-  df = df[(rowSums(df,na.rm=T) > 0 ),]
+selectGSEATerms = function(df, padj.sig = 0.05 ,max.terms.per.factor = 3,dropcommon = TRUE,truncate.terms=48){
+  df = df[(rowSums(df,na.rm=T) > 0 ), , drop = FALSE]
   # markers for each factor based on the proportion of signal in that factor
   df2 <- as.matrix(Diagonal(x = 1 / rowSums(df,na.rm = TRUE)) %*% df)
   
@@ -157,7 +194,7 @@ selectGSEATerms = function(df, max.terms.per.factor = 3,dropcommon = TRUE,trunca
   terms <- c()
   for (i in 1:ncol(df2)) {
     terms_i <- df[, i]
-    idx <- terms_i > -log10(0.05)
+    idx <- terms_i > -log10(padj.sig)
     terms_i <- terms_i[idx]
     terms_j <- df2[idx, i]
     v <- sort(terms_j, decreasing = TRUE)
@@ -169,7 +206,7 @@ selectGSEATerms = function(df, max.terms.per.factor = 3,dropcommon = TRUE,trunca
     }
   }
   terms <- unique(terms)
-  df <- df[terms, ]
+  df <- df[terms, , drop = FALSE]
   #could be earlier, but this lets us exclude NAs where 0 could be < max.terms 
   df[is.na(df)] = 0
   
@@ -181,8 +218,8 @@ selectGSEATerms = function(df, max.terms.per.factor = 3,dropcommon = TRUE,trunca
   
   if (dropcommon) { 
     # remove terms that are broadly significant
-    v <- which((rowSums(df > -log10(0.05)) > (ncol(df) / 2)))
-    if (length(v) > 0) df <- df[-v, ]
+    v <- which((rowSums(df > -log10(padj.sig)) > (ncol(df) / 2)))
+    if (length(v) > 0) df <- df[-v, , drop = FALSE]
   }
   
   return(df)
