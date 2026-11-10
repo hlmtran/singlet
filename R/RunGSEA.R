@@ -34,8 +34,6 @@ RunGSEA <- function(object,...){
 #' @rdname RunGSEA
 #' @aliases RunGSEA
 #'
-#' @import limma
-#'
 #' @export
 #'
 RunGSEA.Seurat = function(object, ID = "gene_symbol", reduction = "nmf", species = "Homo sapiens", category = "C5",
@@ -74,8 +72,6 @@ RunGSEA.Seurat = function(object, ID = "gene_symbol", reduction = "nmf", species
 #' @rdname RunGSEA
 #' @aliases RunGSEA
 #'
-#' @import limma
-#'
 #' @export
 #'
 RunGSEA.SingleCellExperiment = function(object, ID = "gene_symbol", reduction = "nmf", species = "Homo sapiens", category = "C5",
@@ -111,8 +107,6 @@ RunGSEA.SingleCellExperiment = function(object, ID = "gene_symbol", reduction = 
 #' @rdname RunGSEA
 #' @aliases RunGSEA
 #'
-#' @import limma
-#'
 #' @export
 #'
 RunGSEA.list = function(object, ID = "gene_symbol", species = "Homo sapiens", category = "C5",
@@ -147,8 +141,6 @@ RunGSEA.list = function(object, ID = "gene_symbol", species = "Homo sapiens", ca
 #'
 #' @rdname RunGSEA
 #' @aliases RunGSEA
-#'
-#' @import limma
 #'
 #' @export
 #'
@@ -186,8 +178,6 @@ RunGSEA.nmf = function(object, ID = "gene_symbol", species = "Homo sapiens", cat
 #'
 #' @rdname RunGSEA
 #' @aliases RunGSEA
-#'
-#' @import limma
 #'
 #' @export
 #'

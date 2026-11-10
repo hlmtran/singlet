@@ -85,6 +85,7 @@ import(ggplot2)
 import(limma)
 import(msigdbr)
 importClassesFrom(RcppML,nmf)
+importFrom(fgsea,collapsePathways)
 importFrom(methods,
   as,
   is,

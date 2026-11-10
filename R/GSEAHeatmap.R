@@ -98,6 +98,7 @@ GSEAHeatmap.nmf <- function(object,
 
 #' @rdname GSEAHeatmap
 #' @method GSEAHeatmap list
+#' @importFrom fgsea collapsePathways
 #' @export
 GSEAHeatmap.list <- function(object,
                              collapse = F,

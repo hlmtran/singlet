@@ -90,7 +90,7 @@ formatGSEA = function(gsea, pathways = NULL, log10 = TRUE) {
 #'
 #' @return A named list of collapsePathways() results, one per factor.
 #'   Factors without significant pathways contain NULL.
-#'
+#' @importFrom fgsea collapsePathways
 #' @export
 collapseGSEA = function(gsea, padj.sig = 0.05, ...) {
   message("Collapsing GSEA terms...")
