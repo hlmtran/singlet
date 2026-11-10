@@ -83,18 +83,26 @@ import(ggplot2)
 import(limma)
 import(msigdbr)
 importClassesFrom(RcppML,nmf)
-importFrom(methods,as)
-importFrom(methods,is)
-importFrom(methods,new)
-importFrom(reshape2,acast)
-importFrom(reshape2,melt)
-importFrom(stats,dist)
-importFrom(stats,hclust)
-importFrom(stats,model.matrix)
-importFrom(stats,p.adjust)
-importFrom(stats,reshape)
-importFrom(stats,runif)
-importFrom(utils,data)
-importFrom(utils,setTxtProgressBar)
-importFrom(utils,txtProgressBar)
+importFrom(methods,
+  as,
+  is,
+  new
+)
+importFrom(reshape2,
+  acast,
+  melt
+)
+importFrom(stats,
+  dist,
+  hclust,
+  model.matrix,
+  p.adjust,
+  reshape,
+  runif
+)
+importFrom(utils,
+  data,
+  setTxtProgressBar,
+  txtProgressBar
+)
 useDynLib(singlet, .registration = TRUE)

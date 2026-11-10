@@ -46,7 +46,6 @@ RunGSEA.Seurat = function(object, ID = "gene_symbol", reduction = "nmf", species
   
   object@reductions[[reduction]]@misc[[gsea.name]] = RunGSEA.matrix(w = w,
                                                                     ID = ID,
-                                                                    reduction = reduction,
                                                                     species = species,
                                                                     category = category,
                                                                     min.size = min.size,
@@ -84,7 +83,6 @@ RunGSEA.SingleCellExperiment = function(object, ID = "gene_symbol", reduction = 
                                         verbose = TRUE, padj.sig = 0.01, add.noise = FALSE, scoreType = "pos", gsea.name = "gsea",remove.zeros.per.factor = FALSE,...){
   object@metadata[[reduction]] = RunGSEA(object@metadata[[reduction]],
                                          ID = ID,
-                                         reduction = reduction,
                                          species = species,
                                          category = category,
                                          min.size = min.size,
@@ -94,6 +92,7 @@ RunGSEA.SingleCellExperiment = function(object, ID = "gene_symbol", reduction = 
                                          padj.sig = padj.sig,
                                          add.noise = add.noise,
                                          scoreType = scoreType,
+                                         gsea.name = gsea.name,
                                          remove.zeros.per.factor = remove.zeros.per.factor,
                                          ...)
   
@@ -116,14 +115,13 @@ RunGSEA.SingleCellExperiment = function(object, ID = "gene_symbol", reduction = 
 #'
 #' @export
 #'
-RunGSEA.list = function(object, ID = "gene_symbol", reduction = "nmf", species = "Homo sapiens", category = "C5",
+RunGSEA.list = function(object, ID = "gene_symbol", species = "Homo sapiens", category = "C5",
                         min.size = 10, max.size = 500, dims = NULL,
                         verbose = TRUE, padj.sig = 0.01, add.noise = FALSE, scoreType = "pos", gsea.name = "gsea",remove.zeros.per.factor = FALSE,...){
   w = object$w
   
   object[[gsea.name]] = RunGSEA.matrix(w = w,
                                        ID = ID,
-                                       reduction = reduction,
                                        species = species,
                                        category = category,
                                        min.size = min.size,
@@ -154,14 +152,13 @@ RunGSEA.list = function(object, ID = "gene_symbol", reduction = "nmf", species =
 #'
 #' @export
 #'
-RunGSEA.nmf = function(object, ID = "gene_symbol", reduction = "nmf", species = "Homo sapiens", category = "C5",
+RunGSEA.nmf = function(object, ID = "gene_symbol", species = "Homo sapiens", category = "C5",
                        min.size = 10, max.size = 500, dims = NULL,
                        verbose = TRUE, padj.sig = 0.01, add.noise = FALSE, scoreType = "pos", gsea.name = "gsea",remove.zeros.per.factor = FALSE,...){
   w <- object@w
   
   object@misc[[gsea.name]] = RunGSEA.matrix(w = w,
                                             ID = ID,
-                                            reduction = reduction,
                                             species = species,
                                             category = category,
                                             min.size = min.size,
@@ -194,7 +191,7 @@ RunGSEA.nmf = function(object, ID = "gene_symbol", reduction = "nmf", species = 
 #'
 #' @export
 #'
-RunGSEA.matrix <- function(w, ID = "gene_symbol", reduction = "nmf", species = "Homo sapiens", category = "C5",
+RunGSEA.matrix <- function(w, ID = "gene_symbol", species = "Homo sapiens", category = "C5",
                            min.size = 10, max.size = 500, dims = NULL,
                            verbose = TRUE, padj.sig = 0.01, add.noise = FALSE, scoreType = "pos",remove.zeros.per.factor = FALSE,...) {
   

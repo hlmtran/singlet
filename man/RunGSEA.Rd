@@ -50,7 +50,6 @@ RunGSEA(object, ...)
 \method{RunGSEA}{list}(
   object,
   ID = "gene_symbol",
-  reduction = "nmf",
   species = "Homo sapiens",
   category = "C5",
   min.size = 10,
@@ -68,7 +67,6 @@ RunGSEA(object, ...)
 \method{RunGSEA}{nmf}(
   object,
   ID = "gene_symbol",
-  reduction = "nmf",
   species = "Homo sapiens",
   category = "C5",
   min.size = 10,
@@ -86,7 +84,6 @@ RunGSEA(object, ...)
 \method{RunGSEA}{matrix}(
   w,
   ID = "gene_symbol",
-  reduction = "nmf",
   species = "Homo sapiens",
   category = "C5",
   min.size = 10,
@@ -126,7 +123,6 @@ RunGSEA(object, ...)
 \item{add.noise}{add random noise to ranks to prevent hanging, known bug in fgsea(https://github.com/alserglab/fgsea/issues/151#issuecomment-2088857387)}
 
 \item{scoreType}{scoring type passed to \code{fgsea::fgsea}: \code{"pos"} (default, positive weights only), \code{"std"} or \code{"neg"}}
-
 
 \item{gsea.name}{gsea name, gsea by default}
 
